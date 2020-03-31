@@ -521,7 +521,8 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         active_department = request.user.active_department
         return (
             request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_view)) or
-            request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_change)) 
+            request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_change))
+        )
 
     def has_view_or_change_permission(self, request, obj=None):
         return self.has_view_permission(request, obj) or self.has_change_permission(request, obj)
