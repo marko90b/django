@@ -469,7 +469,8 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         """
         opts = self.opts
         codename = get_permission_codename('add', opts)
-        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
+        active_department = request.user.active_department
+        return request.user.has_perm("%s.%s.%s" % (active_department, opts.app_label, codename))
 
     def has_change_permission(self, request, obj=None):
         """
@@ -484,7 +485,8 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         """
         opts = self.opts
         codename = get_permission_codename('change', opts)
-        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
+        active_department = request.user.active_department
+        return request.user.has_perm("%s.%s.%s" % (active_department, opts.app_label, codename))
 
     def has_delete_permission(self, request, obj=None):
         """
@@ -499,7 +501,8 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         """
         opts = self.opts
         codename = get_permission_codename('delete', opts)
-        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
+        active_department = request.user.active_department
+        return request.user.has_perm("%s.%s.%s" % (active_department, opts.app_label, codename))
 
     def has_view_permission(self, request, obj=None):
         """
@@ -515,10 +518,10 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         opts = self.opts
         codename_view = get_permission_codename('view', opts)
         codename_change = get_permission_codename('change', opts)
+        active_department = request.user.active_department
         return (
-            request.user.has_perm('%s.%s' % (opts.app_label, codename_view)) or
-            request.user.has_perm('%s.%s' % (opts.app_label, codename_change))
-        )
+            request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_view)) or
+            request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_change)) 
 
     def has_view_or_change_permission(self, request, obj=None):
         return self.has_view_permission(request, obj) or self.has_change_permission(request, obj)
