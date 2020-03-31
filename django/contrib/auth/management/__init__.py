@@ -46,6 +46,7 @@ def create_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_
         app_config = apps.get_app_config(app_label)
         ContentType = apps.get_model('contenttypes', 'ContentType')
         Permission = apps.get_model('auth', 'Permission')
+        Department = apps.get_model('users', 'Department')
     except LookupError:
         return
 
@@ -53,10 +54,12 @@ def create_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_
         return
 
     # This will hold the permissions we're looking for as
-    # (content_type, (codename, name))
+    # (department, content_type, (codename, name))
     searched_perms = []
     # The codenames and ctypes that should exist.
     ctypes = set()
+    # Departments that exist
+    departments = Department.objects.all()
     for klass in app_config.get_models():
         # Force looking up the content types in the current database
         # before creating foreign keys to them.
@@ -64,7 +67,8 @@ def create_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_
 
         ctypes.add(ctype)
         for perm in _get_all_permissions(klass._meta):
-            searched_perms.append((ctype, perm))
+            for department in departments:
+                searched_perms.append((department, ctype, perm))
 
     # Find all the Permissions that have a content_type for a model we're
     # looking for.  We don't need to check for codenames since we already have
@@ -72,18 +76,19 @@ def create_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_
     all_perms = set(Permission.objects.using(using).filter(
         content_type__in=ctypes,
     ).values_list(
-        "content_type", "codename"
+        "department", "content_type", "codename"
     ))
-
+    
     perms = [
-        Permission(codename=codename, name=name, content_type=ct)
-        for ct, (codename, name) in searched_perms
-        if (ct.pk, codename) not in all_perms
+        Permission(department=department, codename=codename, name=name, content_type=ct)
+        for department, ct, (codename, name) in searched_perms
+        if (department.pk, ct.pk, codename) not in all_perms
     ]
+    
     Permission.objects.using(using).bulk_create(perms)
     if verbosity >= 2:
         for perm in perms:
-            print("Adding permission '%s'" % perm)
+            print("Adding permission '%s'" % perm) 
 
 
 def get_system_username():
