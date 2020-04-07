@@ -86,7 +86,9 @@ class ModelBackend:
         return user_obj._perm_cache
 
     def has_perm(self, user_obj, perm, obj=None):
-        return user_obj.is_active and perm in self.get_all_permissions(user_obj, obj)
+        department_perm = '{}.{}'.format(
+            user_obj.active_department, perm)
+        return user_obj.is_active and department_perm in self.get_all_permissions(user_obj, obj)
 
     def has_module_perms(self, user_obj, app_label):
         """
