@@ -469,8 +469,7 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         """
         opts = self.opts
         codename = get_permission_codename('add', opts)
-        active_department = request.user.active_department
-        return request.user.has_perm("%s.%s.%s" % (active_department, opts.app_label, codename))
+        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
 
     def has_change_permission(self, request, obj=None):
         """
@@ -485,8 +484,7 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         """
         opts = self.opts
         codename = get_permission_codename('change', opts)
-        active_department = request.user.active_department
-        return request.user.has_perm("%s.%s.%s" % (active_department, opts.app_label, codename))
+        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
 
     def has_delete_permission(self, request, obj=None):
         """
@@ -501,8 +499,7 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         """
         opts = self.opts
         codename = get_permission_codename('delete', opts)
-        active_department = request.user.active_department
-        return request.user.has_perm("%s.%s.%s" % (active_department, opts.app_label, codename))
+        return request.user.has_perm("%s.%s" % (opts.app_label, codename))
 
     def has_view_permission(self, request, obj=None):
         """
@@ -518,10 +515,9 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         opts = self.opts
         codename_view = get_permission_codename('view', opts)
         codename_change = get_permission_codename('change', opts)
-        active_department = request.user.active_department
         return (
-            request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_view)) or
-            request.user.has_perm('%s.%s.%s' % (active_department, opts.app_label, codename_change))
+            request.user.has_perm('%s.%s' % (opts.app_label, codename_view)) or
+            request.user.has_perm('%s.%s' % (opts.app_label, codename_change))
         )
 
     def has_view_or_change_permission(self, request, obj=None):
@@ -538,6 +534,8 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         does not restrict access to the add, change or delete views. Use
         `ModelAdmin.has_(add|change|delete)_permission` for that.
         """
+        print(self.opts.app_label)
+        print(request.user.has_module_perms(self.opts.app_label))
         return request.user.has_module_perms(self.opts.app_label)
 
 
