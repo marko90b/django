@@ -534,8 +534,6 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         does not restrict access to the add, change or delete views. Use
         `ModelAdmin.has_(add|change|delete)_permission` for that.
         """
-        print(self.opts.app_label)
-        print(request.user.has_module_perms(self.opts.app_label))
         return request.user.has_module_perms(self.opts.app_label)
 
 
